@@ -7,9 +7,10 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// تهيئة Firebase حصرياً عبر متغير البيئة في Railway
+// تهيئة Firebase مع معالجة الرموز الخاصة في المفتاح الخاص
 try {
-  const serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG);
+  const serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG.replace(/\\n/g, '\n'));
+  
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
   });
