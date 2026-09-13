@@ -7,26 +7,28 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// تهيئة Firebase بطريقة آمنة تعمل محلياً وعلى Railway
-let serviceAccount;
-
+// قراءة إعدادات الفايربيس بطريقة آمنة تماماً تمنع خطأ ENOENT
 if (process.env.FIREBASE_CONFIG) {
-  // قراءة المفتاح من متغيرات البيئة على المنصة السحابية
-  serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG);
+  const serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG);
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
 } else {
-  // قراءة الملف محلياً على جهازك أثناء التطوير
-  serviceAccount = require("./serviceAccountKey.json");
+  // هذا يعمل محلياً فقط على جهازك إذا وضعت الملف بجانبه
+  const serviceAccount = require("./serviceAccountKey.json");
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
 }
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
 
 const db = admin.firestore();
 
-// إعدادات البورت لتتوافق مع Railway تلقائياً
-const PORT = process.env.PORT || 3000;
+// مسار تجريبي للاختبار
+app.get('/', (req, res) => {
+  res.send('School PWA Server is running successfully!');
+});
 
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
