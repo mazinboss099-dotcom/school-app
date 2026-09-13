@@ -1,24 +1,32 @@
 const express = require('express');
-const fs = require('fs');
+const http = require('http');
+const { Server } = require('socket.io');
+const admin = require("firebase-admin");
+
 const app = express();
-const PORT = process.env.PORT || 3000;
+const server = http.createServer(app);
+const io = new Server(server);
 
-app.use(express.json());
-app.use(express.static('public'));
+// تهيئة Firebase بطريقة آمنة تعمل محلياً وعلى Railway
+let serviceAccount;
 
-const DATA_FILE = 'students.json';
+if (process.env.FIREBASE_CONFIG) {
+  // قراءة المفتاح من متغيرات البيئة على المنصة السحابية
+  serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG);
+} else {
+  // قراءة الملف محلياً على جهازك أثناء التطوير
+  serviceAccount = require("./serviceAccountKey.json");
+}
 
-app.post('/register', (req, res) => {
-    const { name, email } = req.body;
-
-    const data = JSON.parse(fs.readFileSync(DATA_FILE));
-    data.push({ name, email, date: new Date().toISOString() });
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-
-    console.log('تسجيل جديد محفوظ:', name, email);
-    res.json({ message: 'تم استلام وحفظ التسجيل بنجاح!', name, email });
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
 });
 
-app.listen(PORT, () => {
-    console.log(`السيرفر يشتغل على http://localhost:${PORT}`);
+const db = admin.firestore();
+
+// إعدادات البورت لتتوافق مع Railway تلقائياً
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
