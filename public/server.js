@@ -7,7 +7,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// تهيئة Firebase مع معالجة الرموز الخاصة في المفتاح الخاص
+// تهيئة Firebase بطريقة صحيحة من متغير البيئة
 try {
   const serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG.replace(/\\n/g, '\n'));
   
@@ -21,7 +21,6 @@ try {
 
 const db = admin.firestore();
 
-// مسار رئيسي للتأكد من أن السيرفر يعمل
 app.get('/', (req, res) => {
   res.send('School PWA Server is up and running!');
 });
