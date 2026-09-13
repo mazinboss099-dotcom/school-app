@@ -7,7 +7,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// تهيئة الفايربيس مباشرة من متغيرات البيئة بدون أي بحث عن ملفات محلية
+// قراءة متغير البيئة بصيغة JSON مباشرة دون أي استدعاء لملفات محلية
 const serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG);
 
 admin.initializeApp({
@@ -17,7 +17,7 @@ admin.initializeApp({
 const db = admin.firestore();
 
 app.get('/', (req, res) => {
-  res.send('School PWA is running successfully!');
+  res.send('School PWA is online and working!');
 });
 
 const PORT = process.env.PORT || 3000;
